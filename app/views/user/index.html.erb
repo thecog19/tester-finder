@@ -1,1 +1,22 @@
-<h1>Hello world</h1>
+<form>
+  
+  <div class="form-group">
+    <label for="countries">Country</label>
+    <select class="form-control" id="countries">
+      <option value="all">All</option>
+      <% @countries.each do |country| %>
+        <option value= <%= country %> ><%= country %></option>
+      <% end %>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="device">Device</label>
+    <select class="form-control" id="device">
+      <option value="all">All</option>
+      <% @device.each do |device| %>
+        <option value= <%= device.id %> ><%= device.description %></option>
+      <% end %>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary mb-2">Search</button>
+</form>
