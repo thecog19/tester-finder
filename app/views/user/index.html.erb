@@ -1,32 +1,47 @@
-<form>
-  
+<form action=<%= search_path %> method="post">
   <div class="form-group">
     <label for="countries">Country</label>
-    <select class="form-control" id="countries">
-      <option value="all">All</option>
+    <select class="form-control" id="countries" name="country">
+      <option value="All">All</option>
       <% @countries.each do |country| %>
-        <option value= <%= country %> ><%= country %></option>
+        <option value= <%= country %> 
+            <%= country_selected_status(@search[:country], country) %> >
+          <%= country %>
+          
+        </option>
       <% end %>
     </select>
   </div>
   <div class="form-group">
     <label for="device">Device</label>
-    <select class="form-control" id="device">
-      <option value="all">All</option>
-      <% @device.each do |device| %>
-        <option value= <%= device.id %> ><%= device.description %></option>
+    <select class="form-control" id="device" name="device">
+      <option value="All">All</option>
+      <% @devices.each do |device| %>
+        <option value= <%= device.id %>
+        <%= device_selected_status(device.id, @search[:device]) %> > 
+                <%= device.description %>  
+        </option>
       <% end %>
     </select>
   </div>
+  <input type="hidden" value=<%= form_authenticity_token %> name="authenticity_token" >
   <button type="submit" class="btn btn-primary mb-2">Search</button>
 </form>
 
 <div>
+  <h3> Search Results For:</h3>
+
+  <h5><%= "Country: #{@search[:country]}" %> </h5> 
+  <h5> <%= "Device: #{@device_name}" %> </h5>
+
+  <% if @users.empty? %>
+    <h5> No users matching search criteria found </h5>
+  <% end %>
   <ul class="list-group">
   <% @users.each do |user| %>
     <li class="list-group-item d-flex justify-content-between align-items-center">
-    <%= user.first_name + " " + user.last_name %>
-    <span class="badge badge-primary badge-pill"><%=user.bug_ids.count%></span>
+    <%= link_to user.full_name, user_path(user.id) %>
+    <span class="badge badge-primary badge-pill"><%=get_user_bugcount(@search[:device], user)%></span>
     </li>
   <% end %>
   </ul>

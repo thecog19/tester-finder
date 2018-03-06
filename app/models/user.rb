@@ -7,16 +7,32 @@ class User < ApplicationRecord
 	 has_many :bugs, foreign_key: "user_id"
 
 	 def self.order_by_bugcount
-	 	User.left_joins(:bugs).group(:user_id).order('COUNT(bugs.id) DESC')
+	 	#we use a left join because we don't care about the properties on bugs
+	 	#basically group all the users, and then sort them under the count of unique bug ids they have
+	 	User.left_joins(:bugs).group(:external_id).order('COUNT(bugs.id) DESC')
 	 end
 
 	 def self.search(search_terms)
-	 	country = search_terms[:country]
-	 	device_id = search_terms[:device]
+	 	country = search_terms[:country] || "All"
+	 	device_id = search_terms[:device] || "All"
 	 	user = User.all
+
+	 	#if the country is specificed, filter users by country
 	 	unless(country == "All")
 	 		user = user.where(country: country)
 	 	end
-	 	user = user.joins("JOIN bugs ON users.external_id == user_id").where("device_id == #{device_id}").group(:user_id).order('COUNT(bugs.id) DESC')
+
+	 	#query needs to be limited by the device id if its specified. 
+	 	if (device_id == "All")
+			return user.joins("JOIN bugs ON users.external_id == user_id").group(:user_id).order('COUNT(bugs.id) DESC')
+		end
+
+		#not too bad of a query. Join bugs to users, filter out based on device id, group all the user_ids, and then order them based on the count of unique bug ids
+ 		user = user.joins("JOIN bugs ON users.external_id == user_id").where("device_id == #{device_id}").group(:user_id).order('COUNT(bugs.id) DESC')
 	 end
+
+
+	 def full_name
+  		"#{first_name} #{last_name}"
+	end
 end

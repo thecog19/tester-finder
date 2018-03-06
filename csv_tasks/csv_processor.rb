@@ -29,7 +29,7 @@ class CSVProcessor
 		data =  CSV.read(@bugs_path)[1 .. -1]
 		data.each do |row|
 		  external_id =  row[0]
-		  bug = Bug.new(external_id: external_id, device_id: row[1], user_id: row[2])
+		  bug = Bug.new(external_id: external_id, device_id: row[1], user_id: row[2]).update_column(:id, external_id)
 		  if(bug.save)
 		  	@logger.debug("stored bug #{external_id}")
 		  else
@@ -42,7 +42,7 @@ class CSVProcessor
 		data =  CSV.read(@testers_path)[1 .. -1]
 		data.each do |row|
 		  external_id =  row[0]
-		  user = User.new(external_id: external_id, first_name: row[1], last_name: row[2], country: row[3], last_login: row[4])
+		  user = User.new(external_id: external_id, first_name: row[1], last_name: row[2], country: row[3], last_login: row[4]).update_column(:id, external_id)
 		  if(user.save)
 		  	@logger.debug("stored user #{user.external_id}")
 		  else
@@ -55,7 +55,7 @@ class CSVProcessor
 		data =  CSV.read(@devices_path)[1 .. -1]
 		data.each do |row|
 		  external_id =  row[0]
-		  device = Device.new(external_id: external_id, description: row[1])
+		  device = Device.new(external_id: external_id, description: row[1]).update_column(:id, external_id)
 		  if(device.save)
 		  	@logger.debug("stored device #{external_id}")
 		  else
