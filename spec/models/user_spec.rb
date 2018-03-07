@@ -89,11 +89,12 @@ RSpec.describe User, type: :model do
  	end
 
  	context("search") do
+ 		#TODO: more unit tests
  		before(:context) do
  			User.destroy_all
  			Device.destroy_all
  			Bug.destroy_all
-	 		@user_with_bugs = create(:user)
+	 		@user_with_bugs = create(:user, country: "AM")
 	 		@user_from_russia = create(:user, country: "RU")
 	 		@user_without_bugs = create(:user)
 	 		@user_with_other_device = create(:user)
@@ -107,53 +108,87 @@ RSpec.describe User, type: :model do
 	  		@bugs_with_diff_device = create_list(:bug, 15, user_id: @user_with_other_device.external_id, device_id: @device2.external_id )
   		end
 
-	 	context("All is passed as both parameters") do
- 			it "the user with the most bugs is first in the array" do
-	 			expect(User.search({device:"All", country:"All"}).first).to eq(@user_with_bugs)
+  		context("empty strings behave as blank strings") do
+  			it "the user with the most bugs is first in the array" do
+	 			expect(User.search({devices:"", countries:""}).first).to eq(@user_with_bugs)
 	 		end
 		 	it "removes all users with no bugs" do
-		 		expect(User.search({device:"All", country:"All"}).last).not_to eq(@user_without_bugs)
+		 		expect(User.search({devices:"", countries:""}).last).not_to eq(@user_without_bugs)
+		 	end
+
+  		end
+
+	 	context("All is passed as both parameters") do
+ 			it "the user with the most bugs is first in the array" do
+	 			expect(User.search({devices:"All", countries:"All"}).first).to eq(@user_with_bugs)
+	 		end
+		 	it "removes all users with no bugs" do
+		 		expect(User.search({devices:"All", countries:"All"}).last).not_to eq(@user_without_bugs)
 		 	end
  		end
 
  		context("A country is passed as a param, All is passed as device") do
  			it "with the most bugs is first in the array" do
-	 			expect(User.search({device:"All", country:"RU"}).first).to eq(@user_from_russia)
+	 			expect(User.search({devices:"All", countries:["RU"]}).first).to eq(@user_from_russia)
 	 		end
 		 	it "removes all users with no bugs" do
-		 		expect(User.search({device:"All", country:"RU"}).count.length).to eq(1)
+		 		expect(User.search({devices:"All", countries:["RU"]}).count.length).to eq(1)
 		 	end
  		end
 
  		context("All is passed as country, a device id is passed as a param") do
  			it "returns the user with the most bugs is first in the array" do
-	 			expect(User.search({device:@device2.external_id, country:"All"}).first).to eq(@user_with_other_device)
+	 			expect(User.search({devices:[@device2.external_id], countries:"All"}).first).to eq(@user_with_other_device)
 	 		end
 	 		it "removes all users with no bugs" do
-		 		expect(User.search({device:@device2.external_id, country:"All"}).count.length).to eq(1)
+		 		expect(User.search({devices:[@device2.external_id], countries:"All"}).count.length).to eq(1)
 		 	end
  		end
 
  		context("A country and a device are passed in") do
  			context("the overlap of country and device should have no results") do
  				it("Returns an empty array") do
-	 				expect(User.search({device:@device2.external_id, country:"RU"}).empty?).to eq(true)
+	 				expect(User.search({devices:[@device2.external_id], countries:["RU"]}).empty?).to eq(true)
  				end
  			end
  			context("the country doesn't exist") do
  				it("Returns an empty array")  do
-	 				expect(User.search({device:@device2.external_id, country:"AU"}).empty?).to eq(true)
+	 				expect(User.search({devices:[@device2.external_id], countries:["AU"]}).empty?).to eq(true)
  				end
  			end
  			context("The device doesn't exist") do
  				it("Returns an empty array") do
-	 				expect(User.search({device:29, country:"RU"}).empty?).to eq(true)
+	 				expect(User.search({devices:[29], countries:["RU"]}).empty?).to eq(true)
  				end
  			end
 
  			context("The device and country are valid") do
  				it("Resturns the correct users") do
-	 				expect(User.search({device:@device3.external_id, country:"RU"}).first).to eq(@user_from_russia)
+	 				expect(User.search({devices:[@device3.external_id], countries:["RU"]}).first).to eq(@user_from_russia)
+ 				end
+ 			end
+
+ 		end
+ 		context("Two countries are passed in") do
+ 			context("there are users from both countries") do
+ 				it("returns the right number of users") do
+ 					expect(User.search({devices:"", countries:["RU", "AM"]}).count.length).to eq(2)
+ 				end
+ 			end
+ 		end
+
+ 		context("Two devices are passed in" ) do
+ 			context("there is an user with both devices") do
+ 				it("returns the right number of users") do
+ 					expect(User.search({devices:[@device3.external_id, @device2.external_id], countries:""}).count.length).to eq(2)
+ 				end
+ 			end
+ 		end
+
+ 		context("Two devices and a country are passed in" ) do
+ 			context("there is an user with both devices") do
+ 				it("returns the right user") do
+ 					expect(User.search({devices:[@device3.external_id, @device2.external_id], countries:["RU"]})).to eq([@user_from_russia])
  				end
  			end
  		end

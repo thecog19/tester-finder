@@ -29,22 +29,22 @@ The app contains three major features:
 
 1.) A user display, that shows all users and how many bugs they have solved.
 
-2.) A search feature, allowing the person browsing to filter the users based on device and country. 
+2.) A search feature, allowing the person browsing to filter the users based on device and country. To search all simply leave the selects blank, or hit the home button in the navbar. 
 
 3.) A individual display page, showing the user, the devices they own and how many bugs they've solved per device.  
 
 ## Testing
 
-The app has a basic suite of unit tests, written in rspec run them with `bundle exec rspec`
-
-Due to database persistance issues, you will have to run `rake db:test:prepare` before you run tests again. At the time of this writing, the models are fully tested.
+The app has a basic suite of unit tests, covering the user model written in rspec run them with `bundle exec rspec`
 
 ## Future Features
+Better UI for search all. 
+
 the csv import methods should be able to handle updating data as well as importing it. 
 
 Add indexes on external_id to allow faster readtimes and more repsonsiveness. 
 
-Sort user show page by bugs fixed as well. 
+Sort user show page by bugs fixed. 
 
 Test csv processor.
 

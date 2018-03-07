@@ -7,19 +7,17 @@ class UserController < ApplicationController
 		if(params[:search])
 			#if there was a search, we need to maintain that state
 			@search = params[:search]
-			@device_name = Device.where(params[:search][:device])
+			@device_names = Device.where("id IN (?)", params[:search][:devices])
 			
 			#we can't search for a device if it's just the string "All", so handle that
-			if(params[:search][:device] == "All")
-				@device_name = "All"
-			else
-				@device_name = @device_name.first.description	
+			if(params[:search][:devices] == "All" || params[:search][:devices] == "")
+				@device_names = "All"	
 			end
 
 			@users = User.search(params[:search])
 		else
 			#page state on first landing
-			@search = {device: "All", country: "All"}
+			@search = {devices: "All", countries: "All"}
 			@users = User.order_by_bugcount
 		end
 	end
@@ -30,6 +28,6 @@ class UserController < ApplicationController
 	end
 
 	def search
-		redirect_to user_index_path({search: {device: params[:device], country: params[:country]}})
+		redirect_to user_index_path({search: {devices: params[:devices], countries: params[:countries]}})
 	end
 end

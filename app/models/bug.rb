@@ -3,7 +3,7 @@ class Bug < ApplicationRecord
 	validates :user_id, presence: true
 	validates :external_id, presence: true
 
-	def self.user_by_device(user_id, device_id)
-		Bug.where(user_id: user_id, device_id: device_id).count
+	def self.user_by_device(user_id, device_ids)
+		Bug.where("user_id = ? AND device_id IN (?)", user_id, device_ids).count
 	end
 end
